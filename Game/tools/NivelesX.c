@@ -28,7 +28,7 @@ void cargarNiveles(){
 	
 	Niveles[0].MatModelo[0][0] = 'p';
 	Niveles[0].MatModelo[0][1] = 'p';
-	Niveles[0].MatModelo[0][2] = 'j';
+	Niveles[0].MatModelo[0][2] = 'v';
 	Niveles[0].MatModelo[0][3] = 'p';
 	Niveles[0].MatModelo[0][4] = 'p';
 	
@@ -147,7 +147,7 @@ void cargarNiveles(){
 	Niveles[1].MatModelo[5][2] = 'v';
 	Niveles[1].MatModelo[5][3] = 'c';
 	Niveles[1].MatModelo[5][4] = 'v';
-	Niveles[1].MatModelo[5][5] = 'j';
+	Niveles[1].MatModelo[5][5] = 'v';
 	Niveles[1].MatModelo[5][6] = 'c';
 	Niveles[1].MatModelo[5][7] = 'v';
 	Niveles[1].MatModelo[5][8] = 'v';
@@ -169,7 +169,7 @@ void cargarNiveles(){
 	Niveles[1].MatModelo[7][2] = 'a';
 	Niveles[1].MatModelo[7][3] = 'p';
 	Niveles[1].MatModelo[7][4] = 'v';
-	Niveles[1].MatModelo[7][5] = 'v';
+	Niveles[1].MatModelo[7][5] = 's';
 	Niveles[1].MatModelo[7][6] = 'p';
 	Niveles[1].MatModelo[7][7] = 'a';
 	Niveles[1].MatModelo[7][8] = 'a';
@@ -200,6 +200,9 @@ void cargarNiveles(){
 	Niveles[1].dim = 10;
 	Niveles[1].jug_inic.x= 5;
 	Niveles[1].jug_inic.y = 5;
+	Niveles[1].spawns[0] = genCoord(7,5);
+	Niveles[1].spawns[1] = genCoord(-1,-1);
+	Niveles[1].spawns[2] = genCoord(-1,-1);
 	
 	Niveles[1].idClave[0] = 'e';
 	Niveles[1].idClave[1] = 'z';
@@ -249,7 +252,7 @@ void cargarNiveles(){
 	Niveles[2].MatModelo[1][9] = 'v';
 	
 	Niveles[2].MatModelo[2][0] = 'v';
-	Niveles[2].MatModelo[2][1] = 'j';
+	Niveles[2].MatModelo[2][1] = 'v';
 	Niveles[2].MatModelo[2][2] = 'v';
 	Niveles[2].MatModelo[2][3] = 'v';
 	Niveles[2].MatModelo[2][4] = 'c';
@@ -346,7 +349,7 @@ void cargarNiveles(){
 	Niveles[2].idClave[3] = 'm';
 	Niveles[2].idClave[4] = 'e';
 	Niveles[2].idClave[5] = '_';
-	Niveles[2].idClave[6] = 'j';
+	Niveles[2].idClave[6] = 'v';
 	Niveles[2].idClave[7] = 'a';
 	Niveles[2].idClave[8] = 'l';
 	Niveles[2].idClave[9] = 'e';
@@ -401,10 +404,3 @@ void descargarNiveles(){
 	}
 	free(Niveles);
 }
-
-
-
-
-
-
-

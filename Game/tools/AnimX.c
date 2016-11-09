@@ -7,7 +7,7 @@
 #include "NivelesX.h"
 
 void invocMenu(){
-	int quit = 0;//Controlador del menu
+	bool quit = false;//Controlador del menu
 	int animFlag = 0;//Estado o fotograma inicial de la animación del menú
 	char selec;
 	impFotograma(1);
@@ -24,42 +24,34 @@ void invocMenu(){
 		if(selec == '\n'){//Seleccionar opcion actual
 			genAnimMenu(animFlag, animFlag);//Animar seleccion
 			if(animFlag == 0){//Si la seleccion corresponde a la primera opcion (opcion 0 JUGAR)
-				limpOut(22);
+				limpOut(22);//Limpia de pantalla
 				cargarNiveles();
-				game_over = 0;//Se inicializa el juego
-				int nivel = 0;//Nivel inicial
+				inicJuego(0);
 				
-				while((!game_over)&&(nivel < totalNiveles)){//Se irán acumulando los niveles sumando al game_over
-					limpOut(3*(Niveles[nivel].dim) + 2);
-					nivel += ejecutarEnNivel(nivel);
-				}
-				
-				quit = 1;//Al acabar se acaba el proceso total
+				descargarNiveles();
+				quit = true;//Al acabar se acaba el proceso total
 			}
 			if(animFlag == 1){//Si la seleccion corresponde a la segunda opcion (opcion 1 CLAVE)
 				cargarNiveles();
-				game_over = 0;//Se inicializa el juego
 				int nivel = menuClave();
 				if(nivel >= 0){
+					//<Limpia de pantalla>
 					int aux = 0;
 					while(aux < 13){
-						fputs("\033[D\033[D\033[D\033[B",stdout);//Regresamos el IBeam a la base del menu y lo mas proximo a la izquierda
+						fputs("\033[D\033[D\033[D\033[B",stdout);//Regresamos el puntero de a la base del menu y lo mas proximo a la izquierda
 						aux++;
 					}
-					limpOut(22);//Limpiamos
+					limpOut(22);
+					///Limpia de pantalla>
+					inicJuego(nivel);
 					
-					while((!game_over)&&(nivel < totalNiveles)){//Se irán acumulando los niveles sumando al game_over
-						limpOut(3*(Niveles[nivel].dim) + 2);
-						nivel += ejecutarEnNivel(nivel);
-					}
-					
-					quit = 1;//Al acabar se acaba el proceso total
+					descargarNiveles();
+					quit = true;//Al acabar se acaba el proceso total
 				}
 			}
 			if(animFlag == 2){//Si la seleccion corresponde a la tercera opcion (opcion 2 SALIR)
 				limpOut(22);
-				descargarNiveles();
-				quit = 1;
+				quit = true;
 			}
 		}
 	}
@@ -157,7 +149,7 @@ void genAnimMenu(int frameFlag1, int frameFlag2){
 	}
 }
 
-int menuClave(){//Se invoca al menu de claves, aún por desarrollar
+int menuClave(){//Se invoca al menu de claves
 	int cont = 0;
 	int i, nivel;//Nivel de destino luego de ingresar la clave
 	
