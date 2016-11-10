@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "NivelesX.h"
+#include <string.h>
+#include "util.h"
 
 /*
 j = jugador
@@ -8,60 +10,105 @@ p = pared
 a = agua
 c = cesped
 v = vacio
+s = spawn
 */
-void cargarNiveles(){
-	totalNiveles = 3;//Variable que dicta la cantidad de niveles existentes
+void cargarNiveles()
+{
+	totalNiveles = 2;
 	Niveles = (Nivel*)calloc(totalNiveles, sizeof(Nivel));
 	
-	//Separamos memoria para las contraseñas a los niveles:
-	int j;
-	for(j = 0; j < totalNiveles; j++){
-		Niveles[j].idClave = (char*)calloc(16,sizeof(char));
-	}	
-	
-	//Nivel 0:
-	Niveles[0].MatModelo = (char**)calloc(5,sizeof(char*));
-	int i;
-	for(i = 0; i < 5; i++){
-		Niveles[0].MatModelo[i] = (char*)calloc(5,sizeof(char));
+	FILE* levelFile;
+	levelFile = fopen("./resources/testLevel.txt", "r");
+	if(levelFile == NULL)
+	{
+		printf("Error abriendo el archivo de niveles\n");
 	}
 	
-	Niveles[0].MatModelo[0][0] = 'p';
-	Niveles[0].MatModelo[0][1] = 'p';
-	Niveles[0].MatModelo[0][2] = 'v';
-	Niveles[0].MatModelo[0][3] = 'p';
-	Niveles[0].MatModelo[0][4] = 'p';
+	int loading = 1; // controla si todavía se puede leer el archivo y cargar un nivel
+	char linea[40]; // string que almacenara una linea del archivo
+	int dimension;
+	int i, j;
+	int nivelCargado = 0; // indice del nivel que se esta cargando
 	
-	Niveles[0].MatModelo[1][0] = 'p';
-	Niveles[0].MatModelo[1][1] = 'v';
-	Niveles[0].MatModelo[1][2] = 'v';
-	Niveles[0].MatModelo[1][3] = 'v';
-	Niveles[0].MatModelo[1][4] = 'p';
+	//Separamos memoria para las contraseñas a los niveles:
+	for(j = 0; j < totalNiveles; j++){
+		Niveles[j].idClave = (char*)calloc(16,sizeof(char));
+	}
 	
-	Niveles[0].MatModelo[2][0] = 'p';
-	Niveles[0].MatModelo[2][1] = 'v';
-	Niveles[0].MatModelo[2][2] = 's';
-	Niveles[0].MatModelo[2][3] = 'v';
-	Niveles[0].MatModelo[2][4] = 'p';
+	while(loading)
+	{
+		if(fgets((char*)linea, 40, levelFile) == NULL)
+		{
+			loading = 0;
+			continue;
+		}
 	
-	Niveles[0].MatModelo[3][0] = 'p';
-	Niveles[0].MatModelo[3][1] = 'c';
-	Niveles[0].MatModelo[3][2] = 'c';
-	Niveles[0].MatModelo[3][3] = 'c';
-	Niveles[0].MatModelo[3][4] = 'p';
+		dimension = strToInt(linea); // dimension del nivel actual
+		
+		//Separar nivel
+		Niveles[nivelCargado].MatModelo = (char**)calloc(dimension,sizeof(char*));
+		for(i = 0; i < dimension; i++){
+			Niveles[nivelCargado].MatModelo[i] = (char*)calloc(dimension,sizeof(char));
+		}	
+			
+		Niveles[nivelCargado].dim = dimension;
+		
+		int spawnCount = 0; // contador para el indice del spawn actual
+		for(i = 0; i < dimension; i++) // se lee tantas lineas como la dimension
+		{
+			if(fgets((char*)linea, 40, levelFile) == NULL) // se lee la sgte linea
+			{
+				loading = 0;
+				continue;
+			}
+			int j;
+			for(j = 0; j < dimension; j++) // se lee cada caracter de la linea
+			{
+				switch(linea[j])
+				{
+					case 'x':
+						Niveles[nivelCargado].MatModelo[i][j] = 'p';
+						break;
+					case ' ':
+						Niveles[nivelCargado].MatModelo[i][j] = 'v';
+						break;
+					case 'j':
+						Niveles[nivelCargado].MatModelo[i][j] = 'j';
+						Niveles[nivelCargado].jug_inic = genCoord(i,j);
+						break;
+					case 'v':
+						Niveles[nivelCargado].MatModelo[i][j] = 'c';
+						break;
+					case '-':
+						Niveles[nivelCargado].MatModelo[i][j] = 'a';
+						break;
+					case 'S':
+						Niveles[nivelCargado].MatModelo[i][j] = 's';
+						Niveles[nivelCargado].spawns[spawnCount++] = genCoord(i,j);
+						break;
+					
+					default:
+						printf("Formato inválido en el nivel, mapa %d, linea %d, caracter %d\n", nivelCargado, i, j);
+						return;
+						break;
+				}
+			}
+			
+			
+			for(j = spawnCount; j < 3; j++) // configura las coordenadas de los spawns no usados
+			{
+				Niveles[nivelCargado].spawns[j] = genCoord(-1,-1);
+			}
+		}
+		nivelCargado++;
+	}
 	
-	Niveles[0].MatModelo[4][0] = 'p';
-	Niveles[0].MatModelo[4][1] = 'p';
-	Niveles[0].MatModelo[4][2] = 'p';
-	Niveles[0].MatModelo[4][3] = 'p';
-	Niveles[0].MatModelo[4][4] = 'p';
 	
-	Niveles[0].dim = 5;
-	Niveles[0].jug_inic = genCoord(0,2);
-	Niveles[0].spawns[0] = genCoord(2,2);
-	Niveles[0].spawns[1] = genCoord(-1,-1);
-	Niveles[0].spawns[2] = genCoord(-1,-1);
-	
+	if(fclose(levelFile))
+	{
+		printf("Error cerrando el archivo de niveles\n");
+	}
+
 	Niveles[0].idClave[0] = 'l';
 	Niveles[0].idClave[1] = 'v';
 	Niveles[0].idClave[2] = 'l';
@@ -79,131 +126,6 @@ void cargarNiveles(){
 	Niveles[0].idClave[14] = '\0';
 	Niveles[0].idClave[15] = '\0';
 		
-	//Nivel 1:
-	
-	Niveles[1].MatModelo = (char**)calloc(10,sizeof(char*));
-	
-	for(i = 0; i < 10; i++){
-		Niveles[1].MatModelo[i] = (char*)calloc(10,sizeof(char));
-	}
-	
-	Niveles[1].MatModelo[0][0] = 'p';
-	Niveles[1].MatModelo[0][1] = 'p';
-	Niveles[1].MatModelo[0][2] = 'p';
-	Niveles[1].MatModelo[0][3] = 'p';
-	Niveles[1].MatModelo[0][4] = 'p';
-	Niveles[1].MatModelo[0][5] = 'p';
-	Niveles[1].MatModelo[0][6] = 'p';
-	Niveles[1].MatModelo[0][7] = 'p';
-	Niveles[1].MatModelo[0][8] = 'p';
-	Niveles[1].MatModelo[0][9] = 'p';
-	
-	Niveles[1].MatModelo[1][0] = 'p';
-	Niveles[1].MatModelo[1][1] = 'v';
-	Niveles[1].MatModelo[1][2] = 'v';
-	Niveles[1].MatModelo[1][3] = 'v';
-	Niveles[1].MatModelo[1][4] = 'v';
-	Niveles[1].MatModelo[1][5] = 'v';
-	Niveles[1].MatModelo[1][6] = 'v';
-	Niveles[1].MatModelo[1][7] = 'v';
-	Niveles[1].MatModelo[1][8] = 'v';
-	Niveles[1].MatModelo[1][9] = 'p';
-	
-	Niveles[1].MatModelo[2][0] = 'p';
-	Niveles[1].MatModelo[2][1] = 'c';
-	Niveles[1].MatModelo[2][2] = 'c';
-	Niveles[1].MatModelo[2][3] = 'v';
-	Niveles[1].MatModelo[2][4] = 'v';
-	Niveles[1].MatModelo[2][5] = 'v';
-	Niveles[1].MatModelo[2][6] = 'v';
-	Niveles[1].MatModelo[2][7] = 'c';
-	Niveles[1].MatModelo[2][8] = 'c';
-	Niveles[1].MatModelo[2][9] = 'p';
-	
-	Niveles[1].MatModelo[3][0] = 'p';
-	Niveles[1].MatModelo[3][1] = 'c';
-	Niveles[1].MatModelo[3][2] = 'v';
-	Niveles[1].MatModelo[3][3] = 'v';
-	Niveles[1].MatModelo[3][4] = 'v';
-	Niveles[1].MatModelo[3][5] = 'v';
-	Niveles[1].MatModelo[3][6] = 'v';
-	Niveles[1].MatModelo[3][7] = 'v';
-	Niveles[1].MatModelo[3][8] = 'c';
-	Niveles[1].MatModelo[3][9] = 'p';
-	
-	Niveles[1].MatModelo[4][0] = 'p';
-	Niveles[1].MatModelo[4][1] = 'v';
-	Niveles[1].MatModelo[4][2] = 'v';
-	Niveles[1].MatModelo[4][3] = 'v';
-	Niveles[1].MatModelo[4][4] = 'c';
-	Niveles[1].MatModelo[4][5] = 'c';
-	Niveles[1].MatModelo[4][6] = 'v';
-	Niveles[1].MatModelo[4][7] = 'v';
-	Niveles[1].MatModelo[4][8] = 'v';
-	Niveles[1].MatModelo[4][9] = 'p';
-	
-	Niveles[1].MatModelo[5][0] = 'p';
-	Niveles[1].MatModelo[5][1] = 'v';
-	Niveles[1].MatModelo[5][2] = 'v';
-	Niveles[1].MatModelo[5][3] = 'c';
-	Niveles[1].MatModelo[5][4] = 'v';
-	Niveles[1].MatModelo[5][5] = 'v';
-	Niveles[1].MatModelo[5][6] = 'c';
-	Niveles[1].MatModelo[5][7] = 'v';
-	Niveles[1].MatModelo[5][8] = 'v';
-	Niveles[1].MatModelo[5][9] = 'p';
-
-	Niveles[1].MatModelo[6][0] = 'p';
-	Niveles[1].MatModelo[6][1] = 'a';
-	Niveles[1].MatModelo[6][2] = 'a';
-	Niveles[1].MatModelo[6][3] = 'p';
-	Niveles[1].MatModelo[6][4] = 'v';
-	Niveles[1].MatModelo[6][5] = 'v';
-	Niveles[1].MatModelo[6][6] = 'p';
-	Niveles[1].MatModelo[6][7] = 'a';
-	Niveles[1].MatModelo[6][8] = 'a';
-	Niveles[1].MatModelo[6][9] = 'p';
-
-	Niveles[1].MatModelo[7][0] = 'p';
-	Niveles[1].MatModelo[7][1] = 'a';
-	Niveles[1].MatModelo[7][2] = 'a';
-	Niveles[1].MatModelo[7][3] = 'p';
-	Niveles[1].MatModelo[7][4] = 'v';
-	Niveles[1].MatModelo[7][5] = 's';
-	Niveles[1].MatModelo[7][6] = 'p';
-	Niveles[1].MatModelo[7][7] = 'a';
-	Niveles[1].MatModelo[7][8] = 'a';
-	Niveles[1].MatModelo[7][9] = 'p';
-	
-	Niveles[1].MatModelo[8][0] = 'p';
-	Niveles[1].MatModelo[8][1] = 'v';
-	Niveles[1].MatModelo[8][2] = 'v';
-	Niveles[1].MatModelo[8][3] = 'v';
-	Niveles[1].MatModelo[8][4] = 'v';
-	Niveles[1].MatModelo[8][5] = 'v';
-	Niveles[1].MatModelo[8][6] = 'v';
-	Niveles[1].MatModelo[8][7] = 'v';
-	Niveles[1].MatModelo[8][8] = 'v';
-	Niveles[1].MatModelo[8][9] = 'p';
-	
-	Niveles[1].MatModelo[9][0] = 'p';
-	Niveles[1].MatModelo[9][1] = 'p';
-	Niveles[1].MatModelo[9][2] = 'p';
-	Niveles[1].MatModelo[9][3] = 'p';
-	Niveles[1].MatModelo[9][4] = 'p';
-	Niveles[1].MatModelo[9][5] = 'p';
-	Niveles[1].MatModelo[9][6] = 'p';
-	Niveles[1].MatModelo[9][7] = 'p';
-	Niveles[1].MatModelo[9][8] = 'p';
-	Niveles[1].MatModelo[9][9] = 'p';
-	
-	Niveles[1].dim = 10;
-	Niveles[1].jug_inic.x= 5;
-	Niveles[1].jug_inic.y = 5;
-	Niveles[1].spawns[0] = genCoord(7,5);
-	Niveles[1].spawns[1] = genCoord(-1,-1);
-	Niveles[1].spawns[2] = genCoord(-1,-1);
-	
 	Niveles[1].idClave[0] = 'e';
 	Niveles[1].idClave[1] = 'z';
 	Niveles[1].idClave[2] = '_';
@@ -221,144 +143,6 @@ void cargarNiveles(){
 	Niveles[1].idClave[14] = '\0';
 	Niveles[1].idClave[15] = '\0';
 	
-	//Nivel 2
-	
-	Niveles[2].MatModelo = (char**)calloc(10,sizeof(char*));
-	
-	for(i = 0; i < 10; i++){
-		Niveles[2].MatModelo[i] = (char*)calloc(10,sizeof(char));
-	}
-	
-	Niveles[2].MatModelo[0][0] = 'a';
-	Niveles[2].MatModelo[0][1] = 'a';
-	Niveles[2].MatModelo[0][2] = 'a';
-	Niveles[2].MatModelo[0][3] = 'a';
-	Niveles[2].MatModelo[0][4] = 'a';
-	Niveles[2].MatModelo[0][5] = 'a';
-	Niveles[2].MatModelo[0][6] = 'a';
-	Niveles[2].MatModelo[0][7] = 'a';
-	Niveles[2].MatModelo[0][8] = 'a';
-	Niveles[2].MatModelo[0][9] = 'a';
-	
-	Niveles[2].MatModelo[1][0] = 'v';
-	Niveles[2].MatModelo[1][1] = 'v';
-	Niveles[2].MatModelo[1][2] = 'v';
-	Niveles[2].MatModelo[1][3] = 'v';
-	Niveles[2].MatModelo[1][4] = 'v';
-	Niveles[2].MatModelo[1][5] = 'v';
-	Niveles[2].MatModelo[1][6] = 'v';
-	Niveles[2].MatModelo[1][7] = 'v';
-	Niveles[2].MatModelo[1][8] = 'v';
-	Niveles[2].MatModelo[1][9] = 'v';
-	
-	Niveles[2].MatModelo[2][0] = 'v';
-	Niveles[2].MatModelo[2][1] = 'v';
-	Niveles[2].MatModelo[2][2] = 'v';
-	Niveles[2].MatModelo[2][3] = 'v';
-	Niveles[2].MatModelo[2][4] = 'c';
-	Niveles[2].MatModelo[2][5] = 'c';
-	Niveles[2].MatModelo[2][6] = 'v';
-	Niveles[2].MatModelo[2][7] = 'v';
-	Niveles[2].MatModelo[2][8] = 'v';
-	Niveles[2].MatModelo[2][9] = 'v';
-	
-	Niveles[2].MatModelo[3][0] = 'v';
-	Niveles[2].MatModelo[3][1] = 'v';
-	Niveles[2].MatModelo[3][2] = 'v';
-	Niveles[2].MatModelo[3][3] = 'v';
-	Niveles[2].MatModelo[3][4] = 'p';
-	Niveles[2].MatModelo[3][5] = 'p';
-	Niveles[2].MatModelo[3][6] = 'v';
-	Niveles[2].MatModelo[3][7] = 'v';
-	Niveles[2].MatModelo[3][8] = 'v';
-	Niveles[2].MatModelo[3][9] = 'v';
-	
-	Niveles[2].MatModelo[4][0] = 'v';
-	Niveles[2].MatModelo[4][1] = 'v';
-	Niveles[2].MatModelo[4][2] = 'v';
-	Niveles[2].MatModelo[4][3] = 'v';
-	Niveles[2].MatModelo[4][4] = 'v';
-	Niveles[2].MatModelo[4][5] = 'v';
-	Niveles[2].MatModelo[4][6] = 'v';
-	Niveles[2].MatModelo[4][7] = 'v';
-	Niveles[2].MatModelo[4][8] = 'v';
-	Niveles[2].MatModelo[4][9] = 'v';
-	
-	Niveles[2].MatModelo[5][0] = 'v';
-	Niveles[2].MatModelo[5][1] = 'v';
-	Niveles[2].MatModelo[5][2] = 'v';
-	Niveles[2].MatModelo[5][3] = 'v';
-	Niveles[2].MatModelo[5][4] = 'p';
-	Niveles[2].MatModelo[5][5] = 'p';
-	Niveles[2].MatModelo[5][6] = 'v';
-	Niveles[2].MatModelo[5][7] = 'v';
-	Niveles[2].MatModelo[5][8] = 'v';
-	Niveles[2].MatModelo[5][9] = 'v';
-	
-	Niveles[2].MatModelo[6][0] = 'v';
-	Niveles[2].MatModelo[6][1] = 'v';
-	Niveles[2].MatModelo[6][2] = 'v';
-	Niveles[2].MatModelo[6][3] = 'v';
-	Niveles[2].MatModelo[6][4] = 'c';
-	Niveles[2].MatModelo[6][5] = 'c';
-	Niveles[2].MatModelo[6][6] = 'v';
-	Niveles[2].MatModelo[6][7] = 'v';
-	Niveles[2].MatModelo[6][8] = 'v';
-	Niveles[2].MatModelo[6][9] = 'v';
-
-	Niveles[2].MatModelo[7][0] = 'p';
-	Niveles[2].MatModelo[7][1] = 'a';
-	Niveles[2].MatModelo[7][2] = 'a';
-	Niveles[2].MatModelo[7][3] = 'a';
-	Niveles[2].MatModelo[7][4] = 'a';
-	Niveles[2].MatModelo[7][5] = 'a';
-	Niveles[2].MatModelo[7][6] = 'a';
-	Niveles[2].MatModelo[7][7] = 'a';
-	Niveles[2].MatModelo[7][8] = 'a';
-	Niveles[2].MatModelo[7][9] = 'p';
-	
-	Niveles[2].MatModelo[8][0] = 'p';
-	Niveles[2].MatModelo[8][1] = 'a';
-	Niveles[2].MatModelo[8][2] = 'a';
-	Niveles[2].MatModelo[8][3] = 'a';
-	Niveles[2].MatModelo[8][4] = 'a';
-	Niveles[2].MatModelo[8][5] = 'a';
-	Niveles[2].MatModelo[8][6] = 'a';
-	Niveles[2].MatModelo[8][7] = 'a';
-	Niveles[2].MatModelo[8][8] = 'a';
-	Niveles[2].MatModelo[8][9] = 'p';
-	
-	Niveles[2].MatModelo[9][0] = 'p';
-	Niveles[2].MatModelo[9][1] = 'p';
-	Niveles[2].MatModelo[9][2] = 'p';
-	Niveles[2].MatModelo[9][3] = 'p';
-	Niveles[2].MatModelo[9][4] = 'p';
-	Niveles[2].MatModelo[9][5] = 'p';
-	Niveles[2].MatModelo[9][6] = 'p';
-	Niveles[2].MatModelo[9][7] = 'p';
-	Niveles[2].MatModelo[9][8] = 'p';
-	Niveles[2].MatModelo[9][9] = 'p';
-	
-	Niveles[2].dim = 10;
-	Niveles[2].jug_inic.x = 2;
-	Niveles[2].jug_inic.y = 1;
-	
-	Niveles[2].idClave[0] = 'n';
-	Niveles[2].idClave[1] = 'o';
-	Niveles[2].idClave[2] = '_';
-	Niveles[2].idClave[3] = 'm';
-	Niveles[2].idClave[4] = 'e';
-	Niveles[2].idClave[5] = '_';
-	Niveles[2].idClave[6] = 'v';
-	Niveles[2].idClave[7] = 'a';
-	Niveles[2].idClave[8] = 'l';
-	Niveles[2].idClave[9] = 'e';
-	Niveles[2].idClave[10] = '\0';
-	Niveles[2].idClave[11] = '\0';
-	Niveles[2].idClave[12] = '\0';
-	Niveles[2].idClave[13] = '\0';
-	Niveles[2].idClave[14] = '\0';
-	Niveles[2].idClave[15] = '\0';		
 }
 
 int sonEquiv(char* p1, char* p2){
