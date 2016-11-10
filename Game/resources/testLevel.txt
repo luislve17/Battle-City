@@ -1,0 +1,22 @@
+6
+xxxxxx
+x    x
+x j  x
+x    x
+x    x
+xxxxxx
+14
+xxxxxxxxxxxxxx
+x     j      x
+x xxx    xxx x
+x  x  --  x  x
+x     --     x
+x xxx    xxx x
+x x   vv   x x
+x x  vxxv  x x
+x xS xxxx  x x
+x x  xxxx  x x
+x x  vxxv  x x
+x x   vv   x x
+x            x
+xxxxxxxxxxxxxx
