@@ -73,7 +73,7 @@ void cargarNiveles()
 						Niveles[nivelCargado].MatModelo[i][j] = 'v';
 						break;
 					case 'j':
-						Niveles[nivelCargado].MatModelo[i][j] = 'j';
+						Niveles[nivelCargado].MatModelo[i][j] = 'v';
 						Niveles[nivelCargado].jug_inic = genCoord(i,j);
 						break;
 					case 'v':
