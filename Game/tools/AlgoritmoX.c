@@ -54,6 +54,7 @@ void visit(node* u)
 		if(v->color == 0)
 		{
 			v->anterior = u;
+			v->d = (i + 2) % 4;
 			visit(v);
 		}
 	}
