@@ -2,13 +2,19 @@
 #include "GraphX.h"
 #include "QueueX.h"
 
+/* nota con "d" en los nodos:
+ * 0 - arriba
+ * 1 - derecha
+ * 2 - abajo
+ * 3 - izquierda
+ */
 
 Cola Q;
 
 void BFS(graph* G)
 {
 	
-	G->start->d = 0;
+	G->start->d = 117; // <------ !!!
 	G->start->color = 1;
 	G->start->anterior = NULL;
 	CreaCola(&Q);
@@ -27,7 +33,7 @@ void BFS(graph* G)
 			if (v->color == 0)
 			{
 				v->color == 1;
-				v->d = u->d + i + 1;
+				v->d = (i + 2) % 4;
 				v->anterior = u;
 				AgregaCola(&Q, (void*) v);
 			}

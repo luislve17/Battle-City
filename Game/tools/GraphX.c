@@ -23,6 +23,7 @@ struct graph
 graph* getMapGraph(Nivel* map);
 void deleteGraph(graph* G);
 void resetGraph(graph* G, Nivel* map);
+void setStartNode(graph* G, coordenada* P);
 
 graph* getMapGraph(Nivel* map)
 {
@@ -37,7 +38,22 @@ graph* getMapGraph(Nivel* map)
         G -> matrix[i] = data + i*G->w;
     }
     
-    for(i = 0; i < G -> h; i++) //fila
+    resetGraph(G, map);
+    
+    return G;
+}
+
+void deleteGraph(graph* G)
+{
+	free(G->matrix[0]);
+	free(G->matrix);
+	free(G);
+}
+
+void resetGraph(graph* G, Nivel* map)
+{
+	int i, j;
+	for(i = 0; i < G -> h; i++) //fila
     {
         for(j = 0; j < G -> w; j++) //columna
         {
@@ -65,28 +81,12 @@ graph* getMapGraph(Nivel* map)
             }
             else G->matrix[i][j].vecinos[3] = NULL;
             
-            if(map->MatModelo[i][j] == 'j')
-            {
-            	G->start = &(G->matrix[i][j]);
-            }
+            
             
         }
         
     }
     
-    return G;
-}
-
-void deleteGraph(graph* G)
-{
-	free(G->matrix[0]);
-	free(G->matrix);
-	free(G);
-}
-
-void resetGraph(graph* G, Nivel* map)
-{
-	int i, j;
     for(i = 0; i < G -> h; i++) //fila
     {
         for(j = 0; j < G -> w; j++) //columna
@@ -94,24 +94,14 @@ void resetGraph(graph* G, Nivel* map)
             G->matrix[i][j].color = 0; // blanco
             G->matrix[i][j].anterior = NULL;
             G->matrix[i][j].d = -1; //"infinito"
-            
-            if(map->MatModelo[i][j] == 'j')
-            {
-            	G->start = &(G->matrix[i][j]);
-            }
         }
         
     }
 
 }
 
-void paintPath(graph* G)
-{
-	node* t = G->end;
-	while(t != NULL)
-	{
-		t->color = 3;
-		t = t->anterior;
-	}
-}
 
+void setStartNode(graph* G, coordenada* P)
+{
+	G->start = &(G->matrix[P->x][P->y]);
+}
