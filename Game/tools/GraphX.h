@@ -10,7 +10,7 @@ struct node
     node* vecinos[4]; // NESW
     int color; // 0 no visitado, 1 visitado // 100 optimo
     node* anterior;
-    int d;
+    int d;// esto indicara el camino hacia Start
 };
 
 typedef struct graph graph;
@@ -26,6 +26,6 @@ struct graph
 graph* getMapGraph(Nivel* map);
 void deleteGraph(graph* G);
 void resetGraph(graph* G, Nivel* map);
-void paintPath(graph* G);
+void setStartNode(graph* G, coordenada* P);
 
 #endif

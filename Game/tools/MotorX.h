@@ -2,6 +2,7 @@
 #define MOTORX_H
 
 #include "NivelesX.h"
+#include "GraphX.h"
 
 typedef enum { false, true } bool;
 
@@ -30,6 +31,9 @@ bool addEnemigo(coordenada pos_inic);
 void movRandom(tanque *T, int nivel);
 void movRandomEnemigos(int nivel);
 void inicJuego(int nivel_inic);
+
+void movBFSEnemigos(graph* G, int nivel);
+void movBFS(graph* G, tanque *T, int nivel);
 
 void movTanqueArriba(tanque *T, int nivel);
 void movTanqueDerecha(tanque *T, int nivel);

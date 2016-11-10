@@ -5,6 +5,8 @@
 #include "InputX.h"
 #include "AnimX.h"
 #include "NivelesX.h"
+#include "GraphX.h"
+#include "AlgoritmoX.h"
 
 #define NORM  "\x1B[0m"
 #define ROJO  "\x1B[31m"
@@ -169,6 +171,8 @@ int ejecutarEnNivel(int nivel){
 	MatEnti = actualMatEntidades(MatEnti, 3*Niveles[nivel].dim);
 	char key;
 	
+	graph* G = getMapGraph(Niveles + nivel); // Niveles + nivel = &(Niveles[nivel]) FYI
+	setStartNode(G, &Jugador.posic);
 	ticks = 0;//Inicializamos los ticks
 	resetEnemigos();
 	while(1){
@@ -208,14 +212,26 @@ int ejecutarEnNivel(int nivel){
 			enemigosEnPantalla++;
 		}
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
-		movRandomEnemigos(nivel);
+		
+		// ###########################################################
+		
+		//movRandomEnemigos(nivel);
+		movBFSEnemigos(G, nivel);
+		// ###########################################################
+		
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		limpOut(3*(Niveles[nivel].dim) + 3);
 
 		//De momento solo se actualizan las entidades, pero el terreno también deberá
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
+		
+		resetGraph(G, Niveles + nivel);
+		setStartNode(G, &Jugador.posic);
+		BFS(G);
+		
 	}
 	resetEnemigos();
+	deleteGraph(G);
 	return 1;
 }
 
@@ -275,6 +291,39 @@ void movRandomEnemigos(int nivel){
 		if(Enemigo[i].posic.x != -1){
 			movRandom(&(Enemigo[i]), nivel);
 		}
+	}
+}
+
+void movBFSEnemigos(graph* G, int nivel)
+{
+	int i;
+	for(i = 0; i < 4; i++){
+		if(Enemigo[i].posic.x != -1){
+			movBFS(G, &(Enemigo[i]), nivel);
+		}
+	}
+}
+
+void movBFS(graph* G, tanque *T, int nivel)
+{
+	int direccion = G->matrix[T->posic.x][T->posic.y].d;
+	
+	switch(direccion){
+		case 0:
+		movTanqueArriba(T, nivel);
+		break;
+		
+		case 1:
+		movTanqueDerecha(T, nivel);
+		break;
+		
+		case 2:
+		movTanqueAbajo(T, nivel);
+		break;
+		
+		case 3:
+		movTanqueIzquierda(T, nivel);
+		break;
 	}
 }
 
