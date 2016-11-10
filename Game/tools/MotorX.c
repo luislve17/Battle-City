@@ -14,6 +14,7 @@
 #define MAGN  "\x1B[35m"
 #define CYAN  "\x1B[36m"
 #define BLNC  "\x1B[37m"
+#define BOLD "\033[1m"
 
 char** defMatNivel(char **MatrizModelo, int dim_modelo){//La matriz de nivel solo almacena terreno y no entidades
 	int i, j;
@@ -93,7 +94,7 @@ bool colisionTDerecha(tanque t1, tanque t2){//Revisa si t2 está arriba de t1
 }
 
 bool colisionTAbajo(tanque t1, tanque t2){//Revisa si t2 está arriba de t1
-	if((t1.posic.x + 1 == t1.posic.x)&&(t1.posic.y == t2.posic.y)){
+	if((t1.posic.x + 1 == t2.posic.x)&&(t1.posic.y == t2.posic.y)){
 		return true;
 	}
 	return false;
@@ -141,7 +142,12 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
 				}
 			}
 			else{
-				printf(" %c ", aux2);
+				if(((i >= 3*Jugador.posic.x)&&(i <= 3*Jugador.posic.x + 2))&&(j >= 3*Jugador.posic.y)&&(j <= 3*Jugador.posic.y + 2)){
+					printf(BOLD AZUL " %c " NORM, aux2);
+				}
+				else{
+					printf(BOLD " %c " NORM, aux2);
+				}
 			}
 		}
 		printf("\n");
@@ -193,14 +199,17 @@ int ejecutarEnNivel(int nivel){
 			game_over = 1;
 			return 0;
 		}
+		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
+		
 		ticks = (ticks + 1)%30;//Los ticks del juego irán del 0 al 29 por cada movimiento y se reiniciarán
 		
 		if((ticks == 0)&&(enemigosEnPantalla < 4)){
 			addEnemigo(Niveles[nivel].spawns[0]);
 			enemigosEnPantalla++;
 		}
-
+		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		movRandomEnemigos(nivel);
+		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		limpOut(3*(Niveles[nivel].dim) + 3);
 
 		//De momento solo se actualizan las entidades, pero el terreno también deberá
@@ -260,6 +269,7 @@ void movRandom(tanque *T, int nivel){
 }
 
 void movRandomEnemigos(int nivel){
+	//Es necesario actualizar la matriz cada vez que se mueve un tanque
 	int i;
 	for(i = 0; i < 4; i++){
 		if(Enemigo[i].posic.x != -1){
