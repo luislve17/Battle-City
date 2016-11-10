@@ -1,6 +1,12 @@
 #ifndef NIVELESX_H
 #define NIVELESX_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "NivelesX.h"
+#include <string.h>
+#include "util.h"
+
 typedef struct{
 	int x, y;
 }coordenada;
