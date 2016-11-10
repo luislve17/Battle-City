@@ -25,15 +25,21 @@ void printMat(char ** Mat, int dim);
 void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Nivel);
 int ejecutarEnNivel(int nivel);
 
-void inicEnemigos();
+void resetEnemigos();
 bool addEnemigo(coordenada pos_inic);
-//void movRandomEnemigos();
+void movRandom(tanque *T, int nivel);
+void movRandomEnemigos();
 void inicJuego(int nivel_inic);
 
-void movJugadorArriba(int nivel);
-void movJugadorDerecha(int nivel);
-void movJugadorAbajo(int nivel);
-void movJugadorIzquierda(int nivel);
+void movTanqueArriba(tanque *T, int nivel);
+void movTanqueDerecha(tanque *T, int nivel);
+void movTanqueAbajo(tanque *T, int nivel);
+void movTanqueIzquierda(tanque *T, int nivel);
+
+bool colisionTArriba(tanque t1, tanque t2);
+bool colisionTDerecha(tanque t1, tanque t2);
+bool colisionTAbajo(tanque t1, tanque t2);
+bool colisionTIzquierda(tanque t1, tanque t2);
 
 char** setUnidad(char var, char ** MatrizNivel, int i, int j);
 char** setTanque(tanque T, char **MatrizEntidades);
