@@ -28,7 +28,7 @@ int ejecutarEnNivel(int nivel);
 void resetEnemigos();
 bool addEnemigo(coordenada pos_inic);
 void movRandom(tanque *T, int nivel);
-void movRandomEnemigos();
+void movRandomEnemigos(int nivel);
 void inicJuego(int nivel_inic);
 
 void movTanqueArriba(tanque *T, int nivel);
