@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include "graph.h"
-#include "queue.h"
+#include "graphX.h"
+#include "queueX.h"
 
 
 Cola Q;
