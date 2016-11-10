@@ -18,7 +18,7 @@ void cargarNiveles()
 	Niveles = (Nivel*)calloc(totalNiveles, sizeof(Nivel));
 	
 	FILE* levelFile;
-	levelFile = fopen("testLevel.txt", "r");
+	levelFile = fopen("../resouces/testLevel.txt", "r");
 	if(levelFile == NULL)
 	{
 		printf("Error abriendo el archivo de niveles\n");
