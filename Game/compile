@@ -1,1 +1,1 @@
-gcc -o test1 ./tools/InputX.c ./tools/AnimX.c ./tools/MotorX.c ./tools/NivelesX.c ./tools/util.c ./tools/graph.c ./tools/queue.c test1.c
+gcc -o test1 ./tools/InputX.c ./tools/AnimX.c ./tools/MotorX.c ./tools/NivelesX.c ./tools/UtilX.c ./tools/GraphX.c ./tools/QueueX.c test1.c
