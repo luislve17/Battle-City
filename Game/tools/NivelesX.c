@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "NivelesX.h"
 #include <string.h>
-#include "util.h"
+#include "UtilX.h"
 
 /*
 j = jugador
