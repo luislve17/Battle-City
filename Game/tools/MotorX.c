@@ -2,7 +2,7 @@
 Pared destruida no se muestra - Solucionado
 Enemigos muertos siguen existiendo - Solucionado
 Cuando hay mas de 8 proyectiles ocurren violacion de segmento - Solucionado
-Violacion de segmento al salir de los limites del mapa
+Violacion de segmento al salir de los limites del mapa - Solucionado
 
 Falta:
 Decrementar proyectiles al colisionar
