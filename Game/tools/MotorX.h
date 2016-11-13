@@ -12,6 +12,7 @@ typedef struct{
 	int poder;
 	int orientacion;
 	bool vivo;
+	int agresividad; // probabilidad de que dispare (en %)
 }tanque;
 
 typedef struct{

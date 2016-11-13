@@ -212,6 +212,7 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
 					printf(CYAN " %c " NORM,aux1);
 				}
 				else if(aux1 == '#'){
+					if()
 					printf(ROJO " %c " NORM,aux1);
 				}
 				else{
@@ -347,6 +348,7 @@ bool addEnemigo(coordenada pos_inic){
 		Enemigo[i].posic = pos_inic;
 		Enemigo[i].vida = 3;
 		Enemigo[i].orientacion = rand()%4 + 1;
+		Enemigo[i].agresividad = rand()%20 + 10;// rango de ferocidad 10%-30%
 		return true;//Generacion de enemigo exitosa
 	}
 	return false;//Generacion de enemigo no exitosa
@@ -439,6 +441,10 @@ void movBFS(graph* G, tanque *T, int nivel)
 		movTanqueIzquierda(T, nivel);
 		break;
 	}
+	if(rand()%101 < T->agresividad )
+	{
+		addBala(T->posic, T->orientacion);
+	}
 }
 
 void movBalas(int nivel){
@@ -518,7 +524,10 @@ void movProyArriba(proyectil *p, int nivel){
 	}
 	else{
 		if(Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x - 1][(*p).posic.y]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x - 1][(*p).posic.y] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] = 'v';
 		}
 		else if(colisionPArriba(*p, Enemigo[0])){
 			Enemigo[0].vida--;
@@ -545,7 +554,10 @@ void movProyDerecha(proyectil *p, int nivel){
 	}
 	else{ 
 		if(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y + 1]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y + 1] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] = 'v';
 		}
 		else if(colisionPDerecha(*p, Enemigo[0])){
 			Enemigo[0].vida--;
@@ -572,7 +584,10 @@ void movProyAbajo(proyectil *p, int nivel){
 	}
 	else{ 
 		if(Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x + 1][(*p).posic.y]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x + 1][(*p).posic.y] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] = 'v';
 		}
 		else if(colisionPAbajo(*p, Enemigo[0])){
 			Enemigo[0].vida--;
@@ -599,7 +614,10 @@ void movProyIzquierda(proyectil *p, int nivel){
 	}
 	else{ 
 		if(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y - 1]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y - 1] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] = 'v';
 		}
 		else if(colisionPIzquierda(*p, Enemigo[0])){
 			Enemigo[0].vida--;

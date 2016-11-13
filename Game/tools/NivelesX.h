@@ -13,6 +13,7 @@ typedef struct{
 
 typedef struct{
 	char** MatModelo;
+	int** resistenciaPared;
 	int dim;
 	char *idClave;
 	coordenada jug_inic;
