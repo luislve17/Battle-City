@@ -2,7 +2,7 @@
 Pared destruida no se muestra - Solucionado
 Enemigos muertos siguen existiendo - Solucionado
 Cuando hay mas de 8 proyectiles ocurren violacion de segmento - Solucionado
-Violacion de segmento al salir de los limites del mapa
+Violacion de segmento al salir de los limites del mapa - Solucionado
 
 Falta:
 Decrementar proyectiles al colisionar
@@ -193,7 +193,7 @@ void printMat(char ** Mat, int dim){
 	}
 }
 
-void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
+void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPared, int dim_Matriz){
 	int i, j;
 	char aux1, aux2;
 	printf("VIDA: %d\n", Jugador.vida);
@@ -212,7 +212,18 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
 					printf(CYAN " %c " NORM,aux1);
 				}
 				else if(aux1 == '#'){
-					printf(ROJO " %c " NORM,aux1);
+					int aux3 = resistenciaPared[i/3][j/3];
+					switch(aux3){
+						case 0:
+							printf(ROJO " %c " NORM,aux1);
+							break;
+						case -1:
+							printf(BOLD ROJO " %c " NORM,aux1);
+							break;
+						case -2:
+							printf(BOLD MAGN " %c " NORM, aux1);
+							break;
+					}
 				}
 				else{
 					printf(NORM " %c " NORM, aux1);
@@ -255,7 +266,7 @@ int ejecutarEnNivel(int nivel){
 	resetEnemigos();
 	resetBalas();
 	while(1){
-		printNivel(MatNv, MatEnti, 3*(Niveles[nivel].dim));
+		printNivel(MatNv, MatEnti, Niveles[nivel].resistenciaPared, 3*(Niveles[nivel].dim));
 		key = getKeyInput();
 		if(key == 'A'){
 			movTanqueArriba(&Jugador, nivel);
@@ -347,6 +358,7 @@ bool addEnemigo(coordenada pos_inic){
 		Enemigo[i].posic = pos_inic;
 		Enemigo[i].vida = 3;
 		Enemigo[i].orientacion = rand()%4 + 1;
+		Enemigo[i].agresividad = rand()%20 + 10;// rango de ferocidad 10%-30%
 		return true;//Generacion de enemigo exitosa
 	}
 	return false;//Generacion de enemigo no exitosa
@@ -439,12 +451,16 @@ void movBFS(graph* G, tanque *T, int nivel)
 		movTanqueIzquierda(T, nivel);
 		break;
 	}
+	if(rand()%101 < T->agresividad )
+	{
+		addBala(T->posic, T->orientacion);
+	}
 }
 
 void movBalas(int nivel){
 	int i;
 	for(i = 0; i < 8; i++){
-		if(Bala[i].posic.x == 0 || Bala[i].posic.y == 0 || Bala[i].posic.x == Niveles[nivel].dim - 1 || Bala[i].posic.y == Niveles[nivel].dim - 1)
+		if((Bala[i].posic.x == 0 && Bala[i].orientacion == 1) || (Bala[i].posic.y == 0 && Bala[i].orientacion == 4) || (Bala[i].posic.x == Niveles[nivel].dim - 1 && Bala[i].orientacion == 3) || (Bala[i].posic.y == Niveles[nivel].dim - 1 && Bala[i].orientacion == 2))
 		{
 			Bala[i].posic = genCoord(-1, -1);
 			continue;
@@ -518,7 +534,10 @@ void movProyArriba(proyectil *p, int nivel){
 	}
 	else{
 		if(Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x - 1][(*p).posic.y]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x - 1][(*p).posic.y] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] = 'v';
 		}
 		else if(colisionPArriba(*p, Enemigo[0])){
 			Enemigo[0].vida--;
@@ -545,7 +564,10 @@ void movProyDerecha(proyectil *p, int nivel){
 	}
 	else{ 
 		if(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y + 1]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y + 1] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] = 'v';
 		}
 		else if(colisionPDerecha(*p, Enemigo[0])){
 			Enemigo[0].vida--;
@@ -572,7 +594,10 @@ void movProyAbajo(proyectil *p, int nivel){
 	}
 	else{ 
 		if(Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x + 1][(*p).posic.y]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x + 1][(*p).posic.y] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] = 'v';
 		}
 		else if(colisionPAbajo(*p, Enemigo[0])){
 			Enemigo[0].vida--;
@@ -599,7 +624,10 @@ void movProyIzquierda(proyectil *p, int nivel){
 	}
 	else{ 
 		if(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] == 'p'){
-			Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] = 'v';
+			Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y - 1]--;
+			
+			if(Niveles[nivel].resistenciaPared[(*p).posic.x][(*p).posic.y - 1] == -3)
+				Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] = 'v';
 		}
 		else if(colisionPIzquierda(*p, Enemigo[0])){
 			Enemigo[0].vida--;

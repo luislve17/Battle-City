@@ -32,7 +32,7 @@ void BFS(graph* G)
 			if (v == NULL) continue;
 			if (v->color == 0)
 			{
-				v->color == 1;
+				v->color = 1;
 				v->d = (i + 2) % 4;
 				v->anterior = u;
 				AgregaCola(&Q, (void*) v);

@@ -47,8 +47,11 @@ void cargarNiveles()
 		
 		//Separar nivel
 		Niveles[nivelCargado].MatModelo = (char**)calloc(dimension,sizeof(char*));
+		Niveles[nivelCargado].resistenciaPared = (int**) calloc(dimension, sizeof(int*));
+		Niveles[nivelCargado].resistenciaPared[0] = (int*) calloc(dimension * dimension, sizeof(int));
 		for(i = 0; i < dimension; i++){
 			Niveles[nivelCargado].MatModelo[i] = (char*)calloc(dimension,sizeof(char));
+			Niveles[nivelCargado].resistenciaPared[i] = Niveles[nivelCargado].resistenciaPared[0] + i*dimension;
 		}	
 			
 		Niveles[nivelCargado].dim = dimension;
@@ -183,6 +186,9 @@ void descargarNiveles(){
 			free(Niveles[i].MatModelo[j]);
 		}
 		free(Niveles[i].MatModelo);
+		
+		free(Niveles[i].resistenciaPared[0]);
+		free(Niveles[i].resistenciaPared);
 		
 		//Liberamos su String idClave
 		free(Niveles[i].idClave);
