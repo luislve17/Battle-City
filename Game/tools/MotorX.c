@@ -1,3 +1,13 @@
+/*
+Pared destruida no se muestra - Solucionado
+Enemigos muertos siguen existiendo - Solucionado
+Cuando hay mas de 8 proyectiles ocurren violacion de segmento - Solucionado
+Violacion de segmento al salir de los limites del mapa
+
+Falta:
+Decrementar proyectiles al colisionar
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -51,6 +61,34 @@ char** defMatNivel(char **MatrizModelo, int dim_modelo){//La matriz de nivel sol
 	return MatrizNivel;
 }
 
+char** actualMatNivel(char** MatrizNivel, char** MatModelo, int dim_modelo){
+	int i, j;
+	char ch;
+	for(i = 0; i < dim_modelo; i++){
+		for(j = 0; j < dim_modelo; j++){
+			ch = MatModelo[i][j];
+			switch(ch){
+				case 'c':
+					MatrizNivel = setUnidad('*', MatrizNivel, i, j);
+					break;
+				case 'p':
+					MatrizNivel = setUnidad('#', MatrizNivel, i, j);
+					break;
+				case 'a':
+					MatrizNivel = setUnidad('~', MatrizNivel, i, j);
+					break;
+				case 'v':
+					MatrizNivel = setUnidad(' ', MatrizNivel, i, j);
+					break;
+				case 's':
+					MatrizNivel = setUnidad('@', MatrizNivel, i, j);
+					break;
+			}
+		}
+	}
+	return MatrizNivel;
+}
+
 char** inicMatEntidades(int dim_modelo){
 	char** MatEntidades = (char**)malloc(3*dim_modelo*sizeof(char*));
 	int i, j;
@@ -76,6 +114,14 @@ char** actualMatEntidades(char** MatEntidades, int dim){
 	for(i = 0; i < 4; i++){
 		if((Enemigo[i].posic.x != -1)&&(Enemigo[i].vida > 0)){
 			MatEntidades = setTanque(Enemigo[i], MatEntidades);
+		}
+		else if(Enemigo[i].vida == 0){
+			Enemigo[i].posic = genCoord(-1,-1);
+		}
+	}
+	for(i = 0; i < 8; i++){
+		if(Bala[i].posic.x != -1){
+			MatEntidades = setProyectil(Bala[i], MatEntidades);
 		}
 	}
 	return MatEntidades;
@@ -109,6 +155,34 @@ bool colisionTIzquierda(tanque t1, tanque t2){//Revisa si t2 está arriba de t1
 	return false;
 }
 
+bool colisionPArriba(proyectil p, tanque T){
+	if((p.posic.x - 1 == T.posic.x)&&(p.posic.y == T.posic.y)){
+		return true;
+	}
+	return false;
+}
+
+bool colisionPDerecha(proyectil p, tanque T){
+	if((p.posic.x == T.posic.x)&&(p.posic.y + 1 == T.posic.y)){
+		return true;
+	}
+	return false;
+}
+
+bool colisionPAbajo(proyectil p, tanque T){
+	if((p.posic.x + 1 == T.posic.x)&&(p.posic.y == T.posic.y)){
+		return true;
+	}
+	return false;
+}
+
+bool colisionPIzquierda(proyectil p, tanque T){
+	if((p.posic.x == T.posic.x)&&(p.posic.y - 1 == T.posic.y)){
+		return true;
+	}
+	return false;
+}
+
 void printMat(char ** Mat, int dim){
 	int i, j;
 	for(i = 0; i < dim; i++){
@@ -124,7 +198,8 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
 	char aux1, aux2;
 	printf("VIDA: %d\n", Jugador.vida);
 	printf("PODER: %d\n", Jugador.poder);
-	printf("TICK: %d\n", ticks);
+	printf("TICK: %d\n", ticks);	
+	
 	for(i = 0; i < dim_Matriz; i++){
 		for(j = 0; j < dim_Matriz; j++){
 			aux1 = MatrizNivel[i][j];
@@ -159,14 +234,17 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
 int ejecutarEnNivel(int nivel){
 	char ** MatNv, ** MatEnti;
 	int enemigosEnPantalla = 0;
+	int balasEnPantalla = 0;
 	
 	time_t t;
+	srand((unsigned)time(&t));
 	
 	MatNv = defMatNivel(Niveles[nivel].MatModelo, Niveles[nivel].dim);
 	MatEnti = inicMatEntidades(Niveles[nivel].dim);
 	
 	Jugador.posic = Niveles[nivel].jug_inic;
 	Jugador.orientacion = rand()%4 + 1; //Orientacion aleatoria
+	Jugador.vida = 4;
 
 	MatEnti = actualMatEntidades(MatEnti, 3*Niveles[nivel].dim);
 	char key;
@@ -175,6 +253,7 @@ int ejecutarEnNivel(int nivel){
 	setStartNode(G, &Jugador.posic);
 	ticks = 0;//Inicializamos los ticks
 	resetEnemigos();
+	resetBalas();
 	while(1){
 		printNivel(MatNv, MatEnti, 3*(Niveles[nivel].dim));
 		key = getKeyInput();
@@ -196,6 +275,11 @@ int ejecutarEnNivel(int nivel){
 		else if(key == '2'){
 			Jugador.vida++;
 		}
+		else if(key == ' '){
+			if(balasEnPantalla < 8){
+				addBala(Jugador.posic,Jugador.orientacion);
+			}
+		}
 		else if(key == '\n'){//Nivel finalizado
 			break;
 		}
@@ -203,26 +287,35 @@ int ejecutarEnNivel(int nivel){
 			game_over = 1;
 			return 0;
 		}
+		movBalas(nivel);
+		MatNv = actualMatNivel(MatNv, Niveles[nivel].MatModelo, Niveles[nivel].dim);
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		
 		ticks = (ticks + 1)%30;//Los ticks del juego irán del 0 al 29 por cada movimiento y se reiniciarán
 		
-		if((ticks == 0)&&(enemigosEnPantalla < 4)){
-			addEnemigo(Niveles[nivel].spawns[0]);
+		if((ticks == 0)&&(enemigosEnPantalla < 4)&&(Niveles[nivel].cant_spawns > 0)){
+			int spawn_seleccionado = rand()%(Niveles[nivel].cant_spawns);
+			addEnemigo(Niveles[nivel].spawns[spawn_seleccionado]);
 			enemigosEnPantalla++;
 		}
+		MatNv = actualMatNivel(MatNv, Niveles[nivel].MatModelo, Niveles[nivel].dim);
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
-		
+		// ###########################################################
+		// Movimiento del enemigo
+		if(ticks%2 == 0){
+			movBFSEnemigos(G, nivel);
+		}
+		else{
+			movRandomEnemigos(nivel);
+		}
 		// ###########################################################
 		
-		//movRandomEnemigos(nivel);
-		movBFSEnemigos(G, nivel);
-		// ###########################################################
-		
+		MatNv = actualMatNivel(MatNv, Niveles[nivel].MatModelo, Niveles[nivel].dim);
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		limpOut(3*(Niveles[nivel].dim) + 3);
 
 		//De momento solo se actualizan las entidades, pero el terreno también deberá
+		MatNv = actualMatNivel(MatNv, Niveles[nivel].MatModelo, Niveles[nivel].dim);
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		
 		resetGraph(G, Niveles + nivel);
@@ -259,9 +352,40 @@ bool addEnemigo(coordenada pos_inic){
 	return false;//Generacion de enemigo no exitosa
 }
 
+void resetBalas(){
+	int i;
+	for(i = 0; i < 8; i++){
+		Bala[i].posic = genCoord(-1, -1);
+	}
+}
+
+bool addBala(coordenada pos_inic, int dir){
+	int i = 0;
+	while((i < 8)&&(Bala[i].posic.x != -1)){
+		i++;
+	}
+	
+	if(Bala[i].posic.x == -1){
+		Bala[i].posic = pos_inic;
+		Bala[i].orientacion = dir;
+		return true;
+	}
+	return false;
+}
+
+void movRandomEnemigos(int nivel){
+	//Es necesario actualizar la matriz cada vez que se mueve un tanque
+	int i;
+	for(i = 0; i < 4; i++){
+		if(Enemigo[i].posic.x != -1){
+			movRandom(&(Enemigo[i]), nivel);
+		}
+	}
+}
+
 void movRandom(tanque *T, int nivel){
 	time_t t;
-	srand((unsigned)time(&t)*((*T).posic.x - ((*T).posic.y)*(Jugador.posic.x * (*T).posic.x)));
+	srand((unsigned)time(&t));
 	
 	int direccion = rand()%4;
 	
@@ -281,16 +405,6 @@ void movRandom(tanque *T, int nivel){
 		case 3:
 		movTanqueIzquierda(T, nivel);
 		break;
-	}
-}
-
-void movRandomEnemigos(int nivel){
-	//Es necesario actualizar la matriz cada vez que se mueve un tanque
-	int i;
-	for(i = 0; i < 4; i++){
-		if(Enemigo[i].posic.x != -1){
-			movRandom(&(Enemigo[i]), nivel);
-		}
 	}
 }
 
@@ -326,6 +440,33 @@ void movBFS(graph* G, tanque *T, int nivel)
 		break;
 	}
 }
+
+void movBalas(int nivel){
+	int i;
+	for(i = 0; i < 8; i++){
+		if(Bala[i].posic.x != -1) {
+			movProyectil(&(Bala[i]), nivel);
+		}
+	}
+}
+
+void movProyectil(proyectil *p, int nivel){
+	switch((*p).orientacion){
+		case 1:
+			movProyArriba(p, nivel);
+			break;
+		case 2:
+			movProyDerecha(p, nivel);
+			break;
+		case 3:
+			movProyAbajo(p, nivel);
+			break;
+		case 4:
+			movProyIzquierda(p, nivel);
+			break;
+	}
+}
+
 
 void inicJuego(int nivel_inic){
 	game_over = 0;//Se inicializa el juego
@@ -365,6 +506,116 @@ void movTanqueIzquierda(tanque *T, int nivel){
 			}
 			(*T).orientacion = 4;
 }
+
+void movProyArriba(proyectil *p, int nivel){
+	if(((*p).posic.x > 0)&&(Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] != 'p')&&(!colisionPArriba(*p, Enemigo[0]))&&(!colisionPArriba(*p, Enemigo[1]))&&(!colisionPArriba(*p, Enemigo[2]))&&(!colisionPArriba(*p, Enemigo[3]))&&(!colisionPArriba(*p, Jugador))){
+		(*p).posic.x--;
+	}
+	else{
+		if(Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] == 'p'){
+			Niveles[nivel].MatModelo[(*p).posic.x - 1][(*p).posic.y] = 'v';
+		}
+		else if(colisionPArriba(*p, Enemigo[0])){
+			Enemigo[0].vida--;
+		}
+		else if(colisionPArriba(*p, Enemigo[1])){
+			Enemigo[1].vida--;
+		}
+		else if(colisionPArriba(*p, Enemigo[2])){
+			Enemigo[2].vida--;
+		}
+		else if(colisionPArriba(*p, Enemigo[3])){
+			Enemigo[3].vida--;
+		}
+		else if(colisionPArriba(*p, Jugador)){
+			Jugador.vida--;
+		}
+		(*p).posic = genCoord(-1,-1);
+	}
+}
+
+void movProyDerecha(proyectil *p, int nivel){
+	if(((*p).posic.y < Niveles[nivel].dim - 1)&&(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] != 'p')&&(!colisionPDerecha(*p, Enemigo[0]))&&(!colisionPDerecha(*p, Enemigo[1]))&&(!colisionPDerecha(*p, Enemigo[2]))&&(!colisionPDerecha(*p, Enemigo[3]))&&(!colisionPDerecha(*p, Jugador))){
+		(*p).posic.y++;
+	}
+	else{ 
+		if(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] == 'p'){
+			Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y + 1] = 'v';
+		}
+		else if(colisionPDerecha(*p, Enemigo[0])){
+			Enemigo[0].vida--;
+		}
+		else if(colisionPDerecha(*p, Enemigo[1])){
+			Enemigo[1].vida--;
+		}
+		else if(colisionPDerecha(*p, Enemigo[2])){
+			Enemigo[2].vida--;
+		}
+		else if(colisionPDerecha(*p, Enemigo[3])){
+			Enemigo[3].vida--;
+		}
+		else if(colisionPDerecha(*p, Jugador)){
+			Jugador.vida--;
+		}
+		(*p).posic = genCoord(-1,-1);
+	}
+}
+
+void movProyAbajo(proyectil *p, int nivel){
+	if(((*p).posic.x < Niveles[nivel].dim - 1)&&(Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] != 'p')&&(!colisionPAbajo(*p, Enemigo[0]))&&(!colisionPAbajo(*p, Enemigo[1]))&&(!colisionPAbajo(*p, Enemigo[2]))&&(!colisionPAbajo(*p, Enemigo[3]))&&(!colisionPDerecha(*p, Jugador))){
+		(*p).posic.x++;
+	}
+	else{ 
+		if(Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] == 'p'){
+			Niveles[nivel].MatModelo[(*p).posic.x + 1][(*p).posic.y] = 'v';
+		}
+		else if(colisionPAbajo(*p, Enemigo[0])){
+			Enemigo[0].vida--;
+		}
+		else if(colisionPAbajo(*p, Enemigo[1])){
+			Enemigo[1].vida--;
+		}
+		else if(colisionPAbajo(*p, Enemigo[2])){
+			Enemigo[2].vida--;
+		}
+		else if(colisionPAbajo(*p, Enemigo[3])){
+			Enemigo[3].vida--;
+		}
+		else if(colisionPAbajo(*p, Jugador)){
+			Jugador.vida--;
+		}
+		(*p).posic = genCoord(-1,-1);
+	}
+}
+
+void movProyIzquierda(proyectil *p, int nivel){
+	if(((*p).posic.y > 0)&&(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] != 'p')&&(!colisionPIzquierda(*p, Enemigo[0]))&&(!colisionPIzquierda(*p, Enemigo[1]))&&(!colisionPIzquierda(*p, Enemigo[2]))&&(!colisionPIzquierda(*p, Enemigo[3]))&&(!colisionPIzquierda(*p, Jugador))){
+		(*p).posic.y--;
+	}
+	else{ 
+		if(Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] == 'p'){
+			Niveles[nivel].MatModelo[(*p).posic.x][(*p).posic.y - 1] = 'v';
+		}
+		else if(colisionPIzquierda(*p, Enemigo[0])){
+			Enemigo[0].vida--;
+		}
+		else if(colisionPIzquierda(*p, Enemigo[1])){
+			Enemigo[1].vida--;
+		}
+		else if(colisionPIzquierda(*p, Enemigo[2])){
+			Enemigo[2].vida--;
+		}
+		else if(colisionPIzquierda(*p, Enemigo[3])){
+			Enemigo[3].vida--;
+		}
+		else if(colisionPIzquierda(*p, Jugador)){
+			Jugador.vida--;
+		}
+		(*p).posic = genCoord(-1,-1);
+	}
+}
+
+
 //</funciones de movimiento>
 
 //<funciones visuales en matriz>
@@ -448,6 +699,23 @@ char** setTanque(tanque T, char **MatrizEntidades){
 	}
 	return MatrizEntidades;
 }
-//</funciones visuales en matriz>
 
+char** setProyectil(proyectil bala, char** MatrizEntidades){
+	switch(bala.orientacion){
+		case 1:
+			MatrizEntidades[3*bala.posic.x + 1][3*bala.posic.y + 1] = '^';
+			break;
+		case 2:
+			MatrizEntidades[3*bala.posic.x + 1][3*bala.posic.y + 1] = '>';
+			break;
+		case 3:
+			MatrizEntidades[3*bala.posic.x + 1][3*bala.posic.y + 1] = 'v';
+			break;
+		case 4:
+			MatrizEntidades[3*bala.posic.x + 1][3*bala.posic.y + 1] = '<';
+			break;
+	}
+	return MatrizEntidades;
+}
+//</funciones visuales en matriz>
 
