@@ -212,7 +212,6 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
 					printf(CYAN " %c " NORM,aux1);
 				}
 				else if(aux1 == '#'){
-					if()
 					printf(ROJO " %c " NORM,aux1);
 				}
 				else{
