@@ -193,7 +193,7 @@ void printMat(char ** Mat, int dim){
 	}
 }
 
-void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
+void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPared, int dim_Matriz){
 	int i, j;
 	char aux1, aux2;
 	printf("VIDA: %d\n", Jugador.vida);
@@ -212,7 +212,18 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Matriz){
 					printf(CYAN " %c " NORM,aux1);
 				}
 				else if(aux1 == '#'){
-					printf(ROJO " %c " NORM,aux1);
+					int aux3 = resistenciaPared[i/3][j/3];
+					switch(aux3){
+						case 0:
+							printf(ROJO " %c " NORM,aux1);
+							break;
+						case -1:
+							printf(BOLD ROJO " %c " NORM,aux1);
+							break;
+						case -2:
+							printf(BOLD MAGN " %c " NORM, aux1);
+							break;
+					}
 				}
 				else{
 					printf(NORM " %c " NORM, aux1);
@@ -255,7 +266,7 @@ int ejecutarEnNivel(int nivel){
 	resetEnemigos();
 	resetBalas();
 	while(1){
-		printNivel(MatNv, MatEnti, 3*(Niveles[nivel].dim));
+		printNivel(MatNv, MatEnti, Niveles[nivel].resistenciaPared, 3*(Niveles[nivel].dim));
 		key = getKeyInput();
 		if(key == 'A'){
 			movTanqueArriba(&Jugador, nivel);
