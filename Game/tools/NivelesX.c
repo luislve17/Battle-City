@@ -100,6 +100,7 @@ void cargarNiveles()
 				Niveles[nivelCargado].spawns[j] = genCoord(-1,-1);
 			}
 		}
+		Niveles[nivelCargado].cant_spawns = spawnCount;
 		nivelCargado++;
 	}
 	
