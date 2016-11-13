@@ -444,6 +444,11 @@ void movBFS(graph* G, tanque *T, int nivel)
 void movBalas(int nivel){
 	int i;
 	for(i = 0; i < 8; i++){
+		if(Bala[i].posic.x == 0 || Bala[i].posic.y == 0 || Bala[i].posic.x == Niveles[nivel].dim - 1 || Bala[i].posic.y == Niveles[nivel].dim - 1)
+		{
+			Bala[i].posic = genCoord(-1, -1);
+			continue;
+		}
 		if(Bala[i].posic.x != -1) {
 			movProyectil(&(Bala[i]), nivel);
 		}
