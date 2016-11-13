@@ -33,7 +33,7 @@ char** inicMatEntidades(int dim_modelo);
 char** actualMatEntidades(char** MatEntidades, int dim);
 
 void printMat(char ** Mat, int dim);
-void printNivel(char** MatrizNivel, char** MatrizEntidades, int dim_Nivel);
+void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPared, int dim_Matriz);
 int ejecutarEnNivel(int nivel);
 
 void resetEnemigos();
