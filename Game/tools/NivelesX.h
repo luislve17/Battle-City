@@ -17,6 +17,7 @@ typedef struct{
 	char *idClave;
 	coordenada jug_inic;
 	coordenada spawns[3];
+	int cant_spawns;
 }Nivel;
 
 Nivel* Niveles;
