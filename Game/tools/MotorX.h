@@ -24,6 +24,7 @@ typedef struct{
 tanque Jugador;
 tanque Enemigo[4];
 proyectil Bala[8];
+base baseActual;
 bool game_over;
 int ticks;//Controlador de tiempo de spawn de enemigos
 
@@ -32,12 +33,16 @@ char** actualMatNivel(char** MatrizNivel, char** MatModelo, int dim_modelo);
 char** inicMatEntidades(int dim_modelo);
 char** actualMatEntidades(char** MatEntidades, int dim);
 
+void printVida();
+void printPoder();
 void printMat(char ** Mat, int dim);
 void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPared, int dim_Matriz);
+void printPantallaNivel(int nivel);
 int ejecutarEnNivel(int nivel);
 
 void resetEnemigos();
 bool addEnemigo(coordenada pos_inic);
+bool enemigosVencidos();
 
 void resetBalas();
 bool addBala(coordenada pos_inic, int dir);
@@ -45,6 +50,7 @@ bool addBala(coordenada pos_inic, int dir);
 void movRandom(tanque *T, int nivel);
 void movRandomEnemigos(int nivel);
 void inicJuego(int nivel_inic);
+void gameOver();
 
 void movBFSEnemigos(graph* G, int nivel);
 void movBFS(graph* G, tanque *T, int nivel);
@@ -61,6 +67,16 @@ bool colisionTArriba(tanque t1, tanque t2);
 bool colisionTDerecha(tanque t1, tanque t2);
 bool colisionTAbajo(tanque t1, tanque t2);
 bool colisionTIzquierda(tanque t1, tanque t2);
+
+bool colisionPArriba(proyectil p, tanque T);
+bool colisionPDerecha(proyectil p, tanque T);
+bool colisionPAbajo(proyectil p, tanque T);
+bool colisionPIzquierda(proyectil p, tanque T);
+
+bool colisionBArriba(proyectil p);
+bool colisionBIzquierda(proyectil p);
+bool colisionBAbajo(proyectil p);
+bool colisionBIzquierda(proyectil p);
 
 void movProyArriba(proyectil *p, int nivel);
 void movProyDerecha(proyectil *p, int nivel);

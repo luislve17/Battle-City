@@ -89,6 +89,10 @@ void cargarNiveles()
 						Niveles[nivelCargado].MatModelo[i][j] = 's';
 						Niveles[nivelCargado].spawns[spawnCount++] = genCoord(i,j);
 						break;
+					case 'B':
+						Niveles[nivelCargado].MatModelo[i][j] = 'v';
+						Niveles[nivelCargado].base_nivel.posic = genCoord(i, j);
+						break;
 					
 					default:
 						printf("Formato inválido en el nivel, mapa %d, linea %d, caracter %d\n", nivelCargado, i, j);
@@ -98,9 +102,14 @@ void cargarNiveles()
 			}
 			
 			
-			for(j = spawnCount; j < 3; j++) // configura las coordenadas de los spawns no usados
+			for(j = spawnCount; j < 3; j++) //configura las coordenadas de los spawns no usados
 			{
 				Niveles[nivelCargado].spawns[j] = genCoord(-1,-1);
+			}
+			
+			if((Niveles[nivelCargado].base_nivel.posic.x == 0)&&(Niveles[nivelCargado].base_nivel.posic.y == 0)){
+			//configura la base no inicializada
+				Niveles[nivelCargado].base_nivel.posic = genCoord(-1, -1);
 			}
 		}
 		Niveles[nivelCargado].cant_spawns = spawnCount;
