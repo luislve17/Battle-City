@@ -32,12 +32,15 @@ char** actualMatNivel(char** MatrizNivel, char** MatModelo, int dim_modelo);
 char** inicMatEntidades(int dim_modelo);
 char** actualMatEntidades(char** MatEntidades, int dim);
 
+void printVida();
+void printPoder();
 void printMat(char ** Mat, int dim);
 void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPared, int dim_Matriz);
 int ejecutarEnNivel(int nivel);
 
 void resetEnemigos();
 bool addEnemigo(coordenada pos_inic);
+bool enemigosVencidos();
 
 void resetBalas();
 bool addBala(coordenada pos_inic, int dir);
@@ -45,6 +48,7 @@ bool addBala(coordenada pos_inic, int dir);
 void movRandom(tanque *T, int nivel);
 void movRandomEnemigos(int nivel);
 void inicJuego(int nivel_inic);
+void gameOver();
 
 void movBFSEnemigos(graph* G, int nivel);
 void movBFS(graph* G, tanque *T, int nivel);
