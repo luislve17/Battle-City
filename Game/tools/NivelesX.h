@@ -12,6 +12,11 @@ typedef struct{
 }coordenada;
 
 typedef struct{
+	coordenada posic;
+	int vida;
+}base;
+
+typedef struct{
 	char** MatModelo;
 	int** resistenciaPared;
 	int dim;
@@ -19,6 +24,7 @@ typedef struct{
 	coordenada jug_inic;
 	coordenada spawns[3];
 	int cant_spawns;
+	base base_nivel;
 }Nivel;
 
 Nivel* Niveles;
