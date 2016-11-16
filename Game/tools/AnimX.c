@@ -7,6 +7,7 @@
 #include "NivelesX.h"
 
 void invocMenu(){
+	limpOut(256);
 	bool quit = false;//Controlador del menu
 	int animFlag = 0;//Estado o fotograma inicial de la animación del menú
 	char selec;
