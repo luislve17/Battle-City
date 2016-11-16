@@ -258,7 +258,7 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPar
 	char aux1, aux2;
 	printVida();
 	printPoder();
-	printf("TICK: %d	Base:%d\n", ticks, baseActual.vida);	
+	printf("TICK: %d\n", ticks);	
 	for(i = 0; i < dim_Matriz; i++){
 		for(j = 0; j < dim_Matriz; j++){
 			aux1 = MatrizNivel[i][j];
