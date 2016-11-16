@@ -197,7 +197,7 @@ int menuClave(){//Se invoca al menu de claves
 
 void impFotograma(int i){//Recibe el numero de fotograma que se desea imprimir y lo imprime en pantalla
 	//Altura de cada frame: 22
-	if(i <= 26){//Número máximo de frames
+	if(i <= 29){//Número máximo de frames
 		FILE* fptr = fopen("resources/Menu_principal.txt", "r");
 		int cont = 1;
 		char ch;
