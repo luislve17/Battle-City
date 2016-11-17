@@ -207,16 +207,19 @@ bool colisionBIzquierda(proyectil p){
 	return false;
 }
 //</Funciones de colisión>
-
 void printVida(){
-	int i;
+	int i = 0;
 	printf("Vida [");
-	for(i = 0; i < Jugador.vida; i++){
+	while((i < Jugador.vida)&&(i < 4)){
 		printf(BOLD ROJO " \u2665 " NORM);
+		i++;
 	}
 	while(i < 4){
 		printf(BOLD " \u2661 " NORM);
 		i++;
+	}
+	if(Jugador.vida == 5){
+		printf(BOLD " \u26E8 " NORM);
 	}
 	printf("]\n");
 }
@@ -229,6 +232,9 @@ void printPoder(){
 			break;
 		case 1:
 			printf("FLOTAR");
+			break;
+		case 2:
+			printf("ESCUDO");
 			break;
 	}
 	printf("\n");
@@ -362,7 +368,9 @@ int ejecutarEnNivel(int nivel){
 			Jugador.poder = (Jugador.poder + 1)%2;
 		}
 		else if(key == '2'){
-			Jugador.vida++;
+			if((Jugador.vida < 4)||(Jugador.vida < 5)&&(Jugador.poder == 2)){
+				Jugador.vida++;
+			}
 		}
 		else if(key == ' '){
 			if(balasEnPantalla < 8){
