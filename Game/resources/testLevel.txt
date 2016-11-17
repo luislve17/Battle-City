@@ -17,6 +17,6 @@ x x  vxxv  x x
 x xS xxxx  x x
 x x  xxxx  x x
 x x  vxxv  x x
-x x   vv   x x
-x      B   S x
+x x   vx   x x
+x     xBx  S x
 xxxxxxxxxxxxxx
