@@ -461,8 +461,6 @@ int ejecutarEnNivel(int nivel){
 			{
 				case ESCUDO:
 					Jugador.poder = 2;
-					Jugador.vida++;
-					break;
 				case VIDA:
 					if((Jugador.vida < 4)||(Jugador.vida < 5)&&(Jugador.poder == 2)){
 						Jugador.vida++;
