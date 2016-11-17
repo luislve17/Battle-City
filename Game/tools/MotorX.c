@@ -18,6 +18,21 @@
 #define BLNC  "\x1B[37m"
 #define BOLD  "\033[1m"
 
+void generarCordPickup(int nivel)
+{
+	int x = rand() % Niveles[nivel].dim;
+	int y = rand() % Niveles[nivel].dim;
+	while(Niveles[nivel].MatModelo[x][y] != 'v')
+	{
+		x++;
+		y++;
+		x %= Niveles[nivel].dim;
+		y %= Niveles[nivel].dim;
+	}
+	
+	Pickup.posic = genCoord(x, y);
+}
+
 char** defMatNivel(char **MatrizModelo, int dim_modelo){//La matriz de nivel solo almacena terreno y no entidades
 	int i, j;
 	char ch, **MatrizNivel;
@@ -118,6 +133,28 @@ char** actualMatEntidades(char** MatEntidades, int dim){
 	if(baseActual.posic.x != -1){
 		MatEntidades[3*baseActual.posic.x + 1][3*baseActual.posic.y + 1] = '*';
 	}
+	
+	if(Pickup.posic.x != -1)
+	{
+		char simbolo;
+		switch(Pickup.tipo)
+		{
+			case ESCUDO:
+				simbolo = 'E';
+				break;
+			case VIDA:
+				simbolo = 'V';
+				break;
+			case FLOTACION:
+				simbolo = 'F';
+				break;
+			default:
+				break;
+		}
+		
+		MatEntidades[3*Pickup.posic.x + 1][3*Pickup.posic.y + 1] = simbolo;
+	}
+	
 	return MatEntidades;
 }
 
@@ -299,6 +336,22 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPar
 				if(((i >= 3*Jugador.posic.x)&&(i <= 3*Jugador.posic.x + 2))&&(j >= 3*Jugador.posic.y)&&(j <= 3*Jugador.posic.y + 2)){//Jugador
 					printf(BOLD AZUL " %c " NORM, aux2);
 				}
+				else if(aux2 == 'V' || aux2 == 'F' || aux2 == 'E'){
+					switch(aux2)
+					{
+						case 'V':
+							printf(BOLD " \u2665 " NORM);
+							break;
+						case 'F':
+							printf(BOLD " \u26F7 " NORM);
+							break;
+						case 'E':
+							printf(BOLD " \u26E8 " NORM);
+							break;
+						
+					}
+					
+				}
 				else if(aux2 == '*'){
 					printf(BOLD " \u2390 " NORM);
 				}
@@ -312,6 +365,7 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPar
 }
 
 int ejecutarEnNivel(int nivel){
+	Pickup.posic = genCoord(-1, -1);
 	printPantallaNivel(nivel);
 	limpOut(22);
 
@@ -390,6 +444,40 @@ int ejecutarEnNivel(int nivel){
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		
 		ticks = (ticks + 1)%30;//Los ticks del juego irán del 0 al 29 por cada movimiento y se reiniciará
+		
+		if(Pickup.duracion--);
+		else Pickup.posic = genCoord(-1, -1);
+			
+		if(rand()%100 < 2 && Pickup.posic.x == -1 && Pickup.duracion) // porcentaje de que aparezca un pickup
+		{
+			generarCordPickup(nivel);
+			Pickup.duracion = 40;
+			Pickup.tipo = rand() % 3;
+		}
+		
+		if(Jugador.posic.x == Pickup.posic.x && Jugador.posic.y == Pickup.posic.y)
+		{
+			switch(Pickup.tipo)
+			{
+				case ESCUDO:
+					Jugador.poder = 2;
+					Jugador.vida++;
+					break;
+				case VIDA:
+					if((Jugador.vida < 4)||(Jugador.vida < 5)&&(Jugador.poder == 2)){
+						Jugador.vida++;
+					}
+					break;
+				case FLOTACION:
+					Jugador.poder = 1;
+					break;
+				default:
+					break;
+			}
+		
+			
+			Pickup.posic = genCoord(-1, -1);
+		}
 		
 		if((ticks == 0)&&(enemigosEnPantalla < 4)&&(Niveles[nivel].cant_spawns > 0)){
 			int spawn_seleccionado = rand()%(Niveles[nivel].cant_spawns);
@@ -493,8 +581,6 @@ void movRandomEnemigos(int nivel){
 }
 
 void movRandom(tanque *T, int nivel){
-	time_t t;
-	srand((unsigned)time(&t));
 	
 	int direccion = rand()%4;
 	
