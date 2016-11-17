@@ -14,7 +14,7 @@ s = spawn
 */
 void cargarNiveles()
 {
-	totalNiveles = 3;
+	totalNiveles = 2;
 	Niveles = (Nivel*)calloc(totalNiveles, sizeof(Nivel));
 	
 	FILE* levelFile;

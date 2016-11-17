@@ -5,6 +5,7 @@
 #include "GraphX.h"
 
 typedef enum { false, true } bool;
+typedef enum { VIDA, FLOTACION, ESCUDO} tipoPickup;
 
 typedef struct{
 	coordenada posic;
@@ -21,6 +22,13 @@ typedef struct{
 	bool vivo;
 }proyectil;
 
+typedef struct{
+	coordenada posic;
+	tipoPickup tipo;
+	int duracion;
+}pickup;
+
+pickup Pickup;
 tanque Jugador;
 tanque Enemigo[4];
 proyectil Bala[8];
@@ -86,5 +94,7 @@ void movProyIzquierda(proyectil *p, int nivel);
 char** setUnidad(char var, char ** MatrizNivel, int i, int j);
 char** setTanque(tanque T, char **MatrizEntidades);
 char** setProyectil(proyectil bala, char** MatrizEntidades);
+
+void generarCordPickup(int nivel);
 
 #endif

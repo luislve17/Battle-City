@@ -39,7 +39,7 @@ void invocMenu(){
 					//<Limpia de pantalla>
 					int aux = 0;
 					while(aux < 13){
-						fputs("\033[D\033[D\033[D\033[D\033[B",stdout);//Regresamos el puntero de a la base del menu y lo mas proximo a la izquierda
+						fputs("\033[D\033[D\033[D\033[B",stdout);//Regresamos el puntero de a la base del menu y lo mas proximo a la izquierda
 						aux++;
 					}
 					limpOut(22);
