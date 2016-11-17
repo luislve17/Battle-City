@@ -16,7 +16,7 @@
 #define MAGN  "\x1B[35m"
 #define CYAN  "\x1B[36m"
 #define BLNC  "\x1B[37m"
-#define BOLD "\033[1m"
+#define BOLD  "\033[1m"
 
 char** defMatNivel(char **MatrizModelo, int dim_modelo){//La matriz de nivel solo almacena terreno y no entidades
 	int i, j;
