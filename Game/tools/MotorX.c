@@ -16,22 +16,7 @@
 #define MAGN  "\x1B[35m"
 #define CYAN  "\x1B[36m"
 #define BLNC  "\x1B[37m"
-#define BOLD "\033[1m"
-
-void generarCordPickup(int nivel)
-{
-	int x = rand() % Niveles[nivel].dim;
-	int y = rand() % Niveles[nivel].dim;
-	while(Niveles[nivel].MatModelo[x][y] != 'v')
-	{
-		x++;
-		y++;
-		x %= Niveles[nivel].dim;
-		y %= Niveles[nivel].dim;
-	}
-	
-	Pickup.posic = genCoord(x, y);
-}
+#define BOLD  "\033[1m"
 
 char** defMatNivel(char **MatrizModelo, int dim_modelo){//La matriz de nivel solo almacena terreno y no entidades
 	int i, j;
@@ -133,28 +118,6 @@ char** actualMatEntidades(char** MatEntidades, int dim){
 	if(baseActual.posic.x != -1){
 		MatEntidades[3*baseActual.posic.x + 1][3*baseActual.posic.y + 1] = '*';
 	}
-	
-	if(Pickup.posic.x != -1)
-	{
-		char simbolo;
-		switch(Pickup.tipo)
-		{
-			case ESCUDO:
-				simbolo = 'E';
-				break;
-			case VIDA:
-				simbolo = 'V';
-				break;
-			case FLOTACION:
-				simbolo = 'F';
-				break;
-			default:
-				break;
-		}
-		
-		MatEntidades[3*Pickup.posic.x + 1][3*Pickup.posic.y + 1] = simbolo;
-	}
-	
 	return MatEntidades;
 }
 
@@ -246,14 +209,18 @@ bool colisionBIzquierda(proyectil p){
 //</Funciones de colisión>
 
 void printVida(){
-	int i;
+	int i = 0;
 	printf("Vida [");
-	for(i = 0; i < Jugador.vida; i++){
+	while((i < Jugador.vida)&&(i < 4)){
 		printf(BOLD ROJO " \u2665 " NORM);
+		i++;
 	}
 	while(i < 4){
 		printf(BOLD " \u2661 " NORM);
 		i++;
+	}
+	if(Jugador.vida == 5){
+		printf(BOLD " \u26E8 " NORM);
 	}
 	printf("]\n");
 }
@@ -266,6 +233,9 @@ void printPoder(){
 			break;
 		case 1:
 			printf("FLOTAR");
+			break;
+		case 2:
+			printf("ESCUDO");
 			break;
 	}
 	printf("\n");
@@ -342,7 +312,6 @@ void printNivel(char** MatrizNivel, char** MatrizEntidades, int** resistenciaPar
 }
 
 int ejecutarEnNivel(int nivel){
-	Pickup.posic = genCoord(-1, -1);
 	printPantallaNivel(nivel);
 	limpOut(22);
 
@@ -371,7 +340,6 @@ int ejecutarEnNivel(int nivel){
 	ticks = 0;//Inicializamos los ticks
 	resetEnemigos();
 	resetBalas();
-	
 	while(1){
 	
 		if((Jugador.vida < 0)||(baseActual.vida <= 0)){//Derrota
@@ -398,10 +366,12 @@ int ejecutarEnNivel(int nivel){
 			movTanqueIzquierda(&Jugador, nivel);
 		}
 		else if(key == '1'){
-			Jugador.poder = (Jugador.poder + 1)%2;
+			Jugador.poder = (Jugador.poder + 1)%3;
 		}
 		else if(key == '2'){
-			Jugador.vida++;
+			if((Jugador.vida < 4)||(Jugador.vida < 5)&&(Jugador.poder == 2)){
+				Jugador.vida++;
+			}
 		}
 		else if(key == ' '){
 			if(balasEnPantalla < 8){
@@ -420,43 +390,6 @@ int ejecutarEnNivel(int nivel){
 		MatEnti = actualMatEntidades(MatEnti, 3*(Niveles[nivel].dim));
 		
 		ticks = (ticks + 1)%30;//Los ticks del juego irán del 0 al 29 por cada movimiento y se reiniciará
-		
-		if(Pickup.duracion--);
-		else Pickup.posic = genCoord(-1, -1);
-			
-		if(rand()%100 < 2 && Pickup.posic.x == -1 && Pickup.duracion) // porcentaje de que aparezca un pickup
-		{
-			generarCordPickup(nivel);
-			Pickup.duracion = 40;
-			Pickup.tipo = rand() % 3;
-		}
-		
-		//#=#=#=#=#=#==#=#=#=#=#=#=#=#=#=################=##==#=#=#
-		
-		if(Jugador.posic.x == Pickup.posic.x && Jugador.posic.y == Pickup.posic.y)
-		{
-			switch(Pickup.tipo)
-			{
-				case ESCUDO:
-					//INSERT CODE HERE
-					break;
-				case VIDA:
-					Jugador.vida++;
-					break;
-				case FLOTACION:
-					Jugador.poder = (Jugador.poder + 1)%2;
-					break;
-				default:
-					break;
-			}
-		
-			
-			Pickup.posic = genCoord(-1, -1);
-		}
-		
-		
-		
-		//#=#=#=#=#=#==#=#=#=#=#=#=#=#=#=################=##==#=#=#
 		
 		if((ticks == 0)&&(enemigosEnPantalla < 4)&&(Niveles[nivel].cant_spawns > 0)){
 			int spawn_seleccionado = rand()%(Niveles[nivel].cant_spawns);
@@ -560,6 +493,8 @@ void movRandomEnemigos(int nivel){
 }
 
 void movRandom(tanque *T, int nivel){
+	time_t t;
+	srand((unsigned)time(&t));
 	
 	int direccion = rand()%4;
 	
