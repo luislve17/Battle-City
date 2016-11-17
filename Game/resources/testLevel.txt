@@ -20,3 +20,18 @@ x x  vxxv  x x
 x x   vx   x x
 x     xBx  S x
 xxxxxxxxxxxxxx
+14
+xxxxxxxxxxxxxx
+x            x
+x     x      x
+x    x x     x
+x   x B x    x
+x  x--x--x   x
+x  xvvjvvx   x
+x   xvvvx    x
+x   vvvvv    x
+x    vxv     x
+x     v      x
+x  xx     xx x
+x   S     S  x
+xxxxxxxxxxxxxx
