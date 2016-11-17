@@ -39,11 +39,11 @@ void invocMenu(){
 					//<Limpia de pantalla>
 					int aux = 0;
 					while(aux < 13){
-						fputs("\033[D\033[D\033[D\033[B",stdout);//Regresamos el puntero de a la base del menu y lo mas proximo a la izquierda
+						fputs("\033[D\033[D\033[D\033[D\033[B",stdout);//Regresamos el puntero de a la base del menu y lo mas proximo a la izquierda
 						aux++;
 					}
 					limpOut(22);
-					///Limpia de pantalla>
+					///</Limpia de pantalla>
 					inicJuego(nivel);
 					
 					descargarNiveles();
@@ -198,7 +198,7 @@ int menuClave(){//Se invoca al menu de claves
 
 void impFotograma(int i){//Recibe el numero de fotograma que se desea imprimir y lo imprime en pantalla
 	//Altura de cada frame: 22
-	if(i <= 29){//Número máximo de frames
+	if(i <= 30){//Número máximo de frames
 		FILE* fptr = fopen("resources/Menu_principal.txt", "r");
 		int cont = 1;
 		char ch;

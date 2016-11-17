@@ -14,7 +14,7 @@ s = spawn
 */
 void cargarNiveles()
 {
-	totalNiveles = 2;
+	totalNiveles = 3;
 	Niveles = (Nivel*)calloc(totalNiveles, sizeof(Nivel));
 	
 	FILE* levelFile;
@@ -155,6 +155,23 @@ void cargarNiveles()
 	Niveles[1].idClave[13] = '\0';
 	Niveles[1].idClave[14] = '\0';
 	Niveles[1].idClave[15] = '\0';
+	
+	Niveles[2].idClave[0] = 'p';
+	Niveles[2].idClave[1] = 'r';
+	Niveles[2].idClave[2] = 'o';
+	Niveles[2].idClave[3] = 'f';
+	Niveles[2].idClave[4] = 'e';
+	Niveles[2].idClave[5] = '_';
+	Niveles[2].idClave[6] = 'a';
+	Niveles[2].idClave[7] = 'p';
+	Niveles[2].idClave[8] = 'r';
+	Niveles[2].idClave[9] = 'u';
+	Niveles[2].idClave[10] = 'e';
+	Niveles[2].idClave[11] = 'b';
+	Niveles[2].idClave[12] = 'e';
+	Niveles[2].idClave[13] = 'm';
+	Niveles[2].idClave[14] = 'e';
+	Niveles[2].idClave[15] = '\0';
 	
 }
 
